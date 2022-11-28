@@ -7,48 +7,9 @@ const COLOR_BOX_DEFAULT = 'black';
 const COLOR_TEXT_DEFAULT = 'white';
 const COLOR_BOX_CURRENT = '#f71735';
 
-const DUMMY_ITEMS = {
-  1: {
-    imageURL: 'chairs-chairs-chairs-chieftain-chair-finn-juhl.jpg',
-    annotations: [
-      {
-        x: 300,
-        y: 300,
-        width: 150,
-        height: 150,
-        label: 'Wooden Armrest',
-        isRender: true,
-      },
-      {
-        x: 900,
-        y: 200,
-        width: 300,
-        height: 200,
-        label: 'Seat Cushion',
-        isRender: true,
-      },
-    ],
-  },
-};
 // State
 const STORE = {
   items: {},
-  /* 
-        will be of shape:
-        {
-            imageURL: // key where image is stored in localstorage
-            annotations: [
-                {
-                    x:
-                    y:
-                    width:
-                    height:
-                    label: "Wooden armrest"
-                    color: // optional
-                }
-            ]
-        }
-    */
   currentItem: null,
   isDrawingBox: false,
   isMovingBox: false,
@@ -733,5 +694,3 @@ window.onload = function () {
   const context = REFS.canvasCurrentBox.getContext('2d');
   context.strokeStyle = COLOR_BOX_CURRENT;
 };
-
-// TODO: set cursor on move cursor:move
