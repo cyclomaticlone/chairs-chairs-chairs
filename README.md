@@ -10,10 +10,10 @@ Open `index.html` in a browser.
 
 ## TODO:
 
-[] Don't allow move box outside of canvas boundaries
-[] Ability to resize box (use isPointInStroke)
-[] Ability to set annotation colours
-[] Replace generic `confirm` with a proper styled modal dialog
-[] Undo delete annotations
-[] Undo delete images
-[] Load a set of dummy data
+- [ ] Don't allow move box outside of canvas boundaries
+- [ ] Ability to resize box (use isPointInStroke)
+- [ ] Ability to set annotation colours
+- [ ] Replace generic `confirm` with a proper styled modal dialog
+- [ ] Undo delete annotations
+- [ ] Undo delete images
+- [ ] Load a set of dummy data
