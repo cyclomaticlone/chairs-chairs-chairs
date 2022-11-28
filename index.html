@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chairs Chairs Chairs</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <section id="left-col">
+        <h1 data-text="Chairs Chairs Chairs">Chairs Chairs Chairs</h1>
+
+        <header id="image-details">
+          <div id="image-titles">
+            <h2 id="image-title">No image uploaded</h2>
+            <h3 id="image-current-filename">Upload an image to begin</h3>
+          </div>
+          <nav id="image-nav">
+            <button type="button" id="image-previous" disabled>Previous</button>
+            <button type="button" id="image-next" disabled>Next</button>
+          </nav>
+        </header>
+        <section id="canvas-container">
+          <div id="canvas-container-inner">
+            <span id="canvas-empty-state">Upload an image to begin</span>
+            <canvas id="canvas-image" width="1000" height="1000"></canvas>
+            <canvas id="canvas-annotation" width="1000" height="1000"></canvas>
+            <canvas id="canvas-current-box" width="1000" height="1000"></canvas>
+          </div>
+        </section>
+
+        <aside id="image-controls">
+          <button type="button" id="image-delete" disabled>Delete Image</button>
+          <input type="file" id="image-upload-input" accept="image/*" />
+          <button type="button" id="image-upload-button">
+            Upload New Image
+          </button>
+        </aside>
+      </section>
+
+      <section id="annotations">
+        <h2>Annotations<span id="annotations-total-number"></span></h2>
+        <h4>Click on labels to change text</h4>
+        <ul id="annotations-list"></ul>
+        <button type="button" id="annotations-delete-all" disabled>
+          Clear All Annotations
+        </button>
+      </section>
+
+      <section id="gallery">
+        <h2>Gallery</h2>
+        <ul id="gallery-list"></ul>
+      </section>
+    </main>
+    <script src="index.js"></script>
+  </body>
+</html>

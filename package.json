@@ -1,0 +1,14 @@
+{
+  "name": "chairs-chairs-chairs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "browser-sync start --server --files 'index.js' 'index.html' 'style.css'"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "browser-sync": "^2.27.10"
+  }
+}
