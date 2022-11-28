@@ -452,6 +452,7 @@ function handleImageUpload(image) {
     setCurrentItem(Object.keys(items).length);
     handleImageChange();
     saveStoreToLocalStorage();
+    renderGallery();
   });
   enableButton(REFS.imageDeleteButton);
   REFS.emptyState.style.display = 'none';
@@ -557,6 +558,7 @@ function handleDeleteImage() {
       return;
     }
     handleCurrentItemChange();
+    renderGallery();
   }
 }
 
