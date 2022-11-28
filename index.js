@@ -579,6 +579,7 @@ function handleMouseMoveCursorChange(e) {
 function renderGallery() {
   const { items } = STORE;
   const keys = Object.keys(items);
+  REFS.galleryList.replaceChildren();
   if (items.length === 0) {
     return;
   }
