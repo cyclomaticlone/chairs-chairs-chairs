@@ -1,9 +1,11 @@
 // Constants
 const CANVAS_WIDTH = 1000;
 const CANVAS_FONT = '14px sans-serif';
-const TEXT_X_OFFSET = 2;
-const TEXT_Y_OFFSET = -6;
-const COLOR_BOX_DEFAULT = 'black';
+const TEXT_X_OFFSET = 4;
+const TEXT_Y_OFFSET = -10;
+const TEXTBOX_Y_OFFSET = -18;
+const TEXTBOX_X_OFFSET = 12;
+const COLOR_BOX_DEFAULT = '#000';
 const COLOR_TEXT_DEFAULT = 'white';
 const COLOR_BOX_CURRENT = '#f71735';
 
@@ -237,11 +239,12 @@ function drawTextBox(canvas, x, y, text, colorText, colorBox) {
   context.font = CANVAS_FONT;
   const textMetrics = context.measureText(text);
   context.fillStyle = colorBox || COLOR_BOX_DEFAULT;
+
   context.fillRect(
     x - 1, // border width
-    y + TEXT_Y_OFFSET - textMetrics.fontBoundingBoxAscent,
-    textMetrics.width + Math.abs(TEXT_X_OFFSET) * 4,
-    textMetrics.fontBoundingBoxAscent + Math.abs(TEXT_Y_OFFSET)
+    y + TEXTBOX_Y_OFFSET - textMetrics.actualBoundingBoxAscent,
+    textMetrics.width + TEXTBOX_X_OFFSET,
+    textMetrics.actualBoundingBoxAscent + Math.abs(TEXTBOX_Y_OFFSET)
   );
   context.fillStyle = colorText || COLOR_TEXT_DEFAULT;
   context.fillText(text, x + TEXT_X_OFFSET, y + TEXT_Y_OFFSET);
