@@ -29,6 +29,7 @@ const STORE = {
     height: 0,
   },
   currentAnnotationPaths: [],
+  hasSupportContentEditablePlainText: false,
 };
 
 // State Getters/Setters
@@ -41,7 +42,9 @@ function getCurrentItemImageName() {
   const { imageURL } = getCurrentItem();
   return imageKeyToFileName(imageURL);
 }
-
+function setSupportsContentEditablePlainText(isSupported) {
+  STORE.hasSupportContentEditablePlainText = isSupported;
+}
 function setDrawingStart() {
   STORE.isDrawingBox = true;
 }
@@ -286,6 +289,16 @@ function checkClickWithinBoxes(x, y) {
 
 // Event Handlers
 
+function checkSupportsContentEditablePlainText() {
+  try {
+    const testEl = document.createElement('span');
+    testEl.contentEditable = 'plaintext-only';
+    setSupportsContentEditablePlainText(true);
+  } catch {
+    setSupportsContentEditablePlainText(false);
+  }
+}
+
 function handleBoxDrawStart(x, y) {
   setDrawingStart();
   setCurrentBoxStart(withScale(x), withScale(y));
@@ -410,6 +423,7 @@ function handleLabelChange(boxIndex, label) {
 }
 
 function renderAnnotationsList(annotations) {
+  const { hasSupportContentEditablePlainText } = STORE;
   // clear out the list
   REFS.annotationsList.replaceChildren();
   REFS.annotationsTotalNumber.innerText = `(${annotations.length})`;
@@ -423,7 +437,9 @@ function renderAnnotationsList(annotations) {
     li.className = 'annotationsListItem';
     const labelEl = document.createElement('span');
     labelEl.textContent = label;
-    labelEl.contentEditable = 'plaintext-only'; // Might not work in firefox
+    labelEl.contentEditable = hasSupportContentEditablePlainText
+      ? 'plaintext-only'
+      : 'true';
     labelEl.addEventListener('input', (e) => {
       // update label in annotation
       handleLabelChange(index, e.target.textContent);
@@ -678,6 +694,7 @@ resizeObserver.observe(REFS.canvasCurrentBox);
 // document.ready, then
 window.onload = function () {
   readStoreFromLocalStorage();
+  checkSupportsContentEditablePlainText();
   updateCanvasScale(REFS.canvasCurrentBox);
   const { currentItem } = STORE;
   if (currentItem) {
