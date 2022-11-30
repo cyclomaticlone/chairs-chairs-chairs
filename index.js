@@ -1,11 +1,6 @@
+import * as canv from './src/canvas.js';
 // Constants
 const CANVAS_WIDTH = 1000;
-const CANVAS_FONT = '14px sans-serif';
-const TEXT_X_OFFSET = 4;
-const TEXT_Y_OFFSET = -10;
-const TEXTBOX_Y_OFFSET = -18;
-const TEXTBOX_X_OFFSET = 12;
-const COLOR_BOX_DEFAULT = '#000';
 const COLOR_TEXT_DEFAULT = 'white';
 const COLOR_BOX_CURRENT = '#f71735';
 
@@ -39,7 +34,6 @@ function getCurrentItem() {
   const { items, currentItem } = STORE;
   return items[currentItem];
 }
-
 function getCurrentItemImageName() {
   const { imageURL } = getCurrentItem();
   return imageKeyToFileName(imageURL);
@@ -203,17 +197,6 @@ function imageKeyToFileName(key) {
 
 // Canvas Operations
 // TODO: consider encapsulating all canvas operations in a class
-function drawImageToFit(canvas, img) {
-  const context = canvas.getContext('2d');
-  const imgScale = Math.min(
-    canvas.width / img.width,
-    canvas.height / img.height
-  );
-  const x = canvas.width / 2 - (img.width / 2) * imgScale;
-  const y = canvas.height / 2 - (img.height / 2) * imgScale;
-  context.drawImage(img, x, y, img.width * imgScale, img.height * imgScale);
-}
-
 function addImageToCanvas(localStorageKey) {
   const imgURL = localStorage.getItem(localStorageKey);
   if (!imgURL) {
@@ -223,43 +206,16 @@ function addImageToCanvas(localStorageKey) {
   const img = new Image();
   img.src = imgURL;
   img.onload = () => {
-    clearCanvas(REFS.canvasImage);
-    drawImageToFit(REFS.canvasImage, img);
+    canv.clearCanvas(REFS.canvasImage);
+    canv.drawImageToFit(REFS.canvasImage, img);
   };
-}
-
-function drawBox(canvas, x, y, width, height) {
-  const context = canvas.getContext('2d');
-  context.fillStyle = COLOR_BOX_DEFAULT;
-  context.strokeRect(x, y, width, height);
-}
-
-function drawTextBox(canvas, x, y, text, colorText, colorBox) {
-  const context = canvas.getContext('2d');
-  context.font = CANVAS_FONT;
-  const textMetrics = context.measureText(text);
-  context.fillStyle = colorBox || COLOR_BOX_DEFAULT;
-
-  context.fillRect(
-    x - 1, // border width
-    y + TEXTBOX_Y_OFFSET - textMetrics.actualBoundingBoxAscent,
-    textMetrics.width + TEXTBOX_X_OFFSET,
-    textMetrics.actualBoundingBoxAscent + Math.abs(TEXTBOX_Y_OFFSET)
-  );
-  context.fillStyle = colorText || COLOR_TEXT_DEFAULT;
-  context.fillText(text, x + TEXT_X_OFFSET, y + TEXT_Y_OFFSET);
-}
-
-function clearCanvas(canvas) {
-  const context = canvas.getContext('2d');
-  context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function renderAllAnnotations(canvas, annotations) {
   annotations.forEach(({ x, y, width, height, isRender, label }) => {
     if (isRender) {
-      drawBox(canvas, x, y, width, height);
-      drawTextBox(canvas, x, y, label);
+      canv.drawBox(canvas, x, y, width, height);
+      canv.drawTextBox(canvas, x, y, label);
     }
   });
 }
@@ -319,7 +275,7 @@ function handleBoxDrawEnd() {
   // draw on annotations layer
   renderAllAnnotations(REFS.canvasAnnotation, annotations);
   updateCurrentAnnotationPaths(annotations);
-  clearCanvas(REFS.canvasCurrentBox);
+  canv.clearCanvas(REFS.canvasCurrentBox);
   //re-render list
   renderAnnotationsList(annotations);
   saveStoreToLocalStorage();
@@ -334,8 +290,8 @@ function handleBoxDrawing(x, y) {
   const height = currentYCanvas - startY;
   setCurrentBoxWidthHeight(width, height);
 
-  clearCanvas(REFS.canvasCurrentBox);
-  drawBox(REFS.canvasCurrentBox, startX, startY, width, height);
+  canv.clearCanvas(REFS.canvasCurrentBox);
+  canv.drawBox(REFS.canvasCurrentBox, startX, startY, width, height);
 }
 
 function handleBoxMoving(currentX, currentY) {
@@ -347,9 +303,9 @@ function handleBoxMoving(currentX, currentY) {
   const xWithOffset = withScale(currentX) - x;
   const yWithOffset = withScale(currentY) - y;
   setCurrentBoxStart(xWithOffset, yWithOffset);
-  clearCanvas(REFS.canvasCurrentBox);
-  drawBox(REFS.canvasCurrentBox, xWithOffset, yWithOffset, width, height);
-  drawTextBox(
+  canv.clearCanvas(REFS.canvasCurrentBox);
+  canv.drawBox(REFS.canvasCurrentBox, xWithOffset, yWithOffset, width, height);
+  canv.drawTextBox(
     REFS.canvasCurrentBox,
     xWithOffset,
     yWithOffset,
@@ -371,12 +327,12 @@ function handleBoxMoveStart(boxIndex, x, y) {
   setMoveOffset(withScale(x) - boxX, withScale(y) - boxY);
   setBoxRender(boxIndex, false);
   // redraw boxes minus the current one
-  clearCanvas(REFS.canvasAnnotation);
+  canv.clearCanvas(REFS.canvasAnnotation);
   renderAllAnnotations(REFS.canvasAnnotation, annotations);
   // draw on current layer
-  clearCanvas(REFS.canvasCurrentBox);
-  drawBox(REFS.canvasCurrentBox, boxX, boxY, width, height);
-  drawTextBox(
+  canv.clearCanvas(REFS.canvasCurrentBox);
+  canv.drawBox(REFS.canvasCurrentBox, boxX, boxY, width, height);
+  canv.drawTextBox(
     REFS.canvasCurrentBox,
     boxX,
     boxY,
@@ -391,7 +347,7 @@ function handleBoxMoveEnd() {
   const { currentBox } = STORE;
   const { annotations } = getCurrentItem();
   setMovingEnd();
-  clearCanvas(REFS.canvasAnnotation);
+  canv.clearCanvas(REFS.canvasAnnotation);
   // push into state
   const { startX, startY, width, height, index } = currentBox;
   updateBoxCoordinates(index, startX, startY, width, height);
@@ -399,7 +355,7 @@ function handleBoxMoveEnd() {
   // draw on annotations layer
   renderAllAnnotations(REFS.canvasAnnotation, annotations);
   updateCurrentAnnotationPaths(annotations);
-  clearCanvas(REFS.canvasCurrentBox);
+  canv.clearCanvas(REFS.canvasCurrentBox);
   renderAnnotationsList(annotations);
   saveStoreToLocalStorage();
   REFS.canvasCurrentBox.style.cursor = 'crosshair';
@@ -411,7 +367,7 @@ function handleDeleteAnnotation(boxIndex) {
   if (confirm(`Delete annotation ${label}?`)) {
     removeBoxFromAnnotations(boxIndex);
     renderAnnotationsList(annotations);
-    clearCanvas(REFS.canvasAnnotation);
+    canv.clearCanvas(REFS.canvasAnnotation);
     renderAllAnnotations(REFS.canvasAnnotation, annotations);
     saveStoreToLocalStorage();
   }
@@ -420,7 +376,7 @@ function handleDeleteAnnotation(boxIndex) {
 function handleLabelChange(boxIndex, label) {
   const { annotations } = getCurrentItem();
   updateBoxLabel(boxIndex, label);
-  clearCanvas(REFS.canvasAnnotation);
+  canv.clearCanvas(REFS.canvasAnnotation);
   renderAllAnnotations(REFS.canvasAnnotation, annotations);
   saveStoreToLocalStorage();
 }
@@ -488,7 +444,7 @@ function handleImageChange() {
   const { imageURL, annotations } = getCurrentItem();
   addImageToCanvas(imageURL);
   renderImageDetails();
-  clearCanvas(REFS.canvasAnnotation);
+  canv.clearCanvas(REFS.canvasAnnotation);
   renderAllAnnotations(REFS.canvasAnnotation, annotations);
   renderAnnotationsList(annotations);
   updateCurrentAnnotationPaths(annotations);
@@ -538,7 +494,7 @@ function checkAndDisableButtons() {
 function handleDeleteAllAnnotations() {
   if (confirm(`Delete all annotations? This cannot be undone.`)) {
     removeAllBoxes();
-    clearCanvas(REFS.canvasAnnotation);
+    canv.clearCanvas(REFS.canvasAnnotation);
     const { annotations } = getCurrentItem();
     renderAnnotationsList(annotations);
     updateCurrentAnnotationPaths(annotations);
@@ -548,8 +504,8 @@ function handleDeleteAllAnnotations() {
 }
 
 function handleEmptyState() {
-  clearCanvas(REFS.canvasImage);
-  clearCanvas(REFS.canvasAnnotation);
+  canv.clearCanvas(REFS.canvasImage);
+  canv.clearCanvas(REFS.canvasAnnotation);
   renderAnnotationsList([]);
   updateCurrentAnnotationPaths([]);
   saveStoreToLocalStorage();
