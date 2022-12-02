@@ -96,7 +96,7 @@ function checkSupportsContentEditablePlainText() {
   }
 }
 
-// Event Handler
+// Event Handlers
 
 function handleBoxDrawStart(x, y) {
   store.setDrawingStart();
