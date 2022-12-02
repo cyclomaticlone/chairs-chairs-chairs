@@ -1,10 +1,11 @@
 export const CANVAS_FONT = '14px sans-serif';
+export const CANVAS_WIDTH = 1000;
 export const TEXT_X_OFFSET = 4;
 export const TEXT_Y_OFFSET = -10;
 const TEXTBOX_Y_OFFSET = -18;
 const TEXTBOX_X_OFFSET = 12;
 export const COLOR_BOX_DEFAULT = '#000000';
-export const COLOR_TEXT_DEFAULT = 'white';
+export const COLOR_TEXT_DEFAULT = '#ffffff';
 export const BORDER_WIDTH = 1;
 
 export function drawImageToFit(canvas, img) {
@@ -16,20 +17,6 @@ export function drawImageToFit(canvas, img) {
   const x = canvas.width / 2 - (img.width / 2) * imgScale;
   const y = canvas.height / 2 - (img.height / 2) * imgScale;
   context.drawImage(img, x, y, img.width * imgScale, img.height * imgScale);
-}
-
-export function addImageToCanvas(localStorageKey) {
-  const imgURL = localStorage.getItem(localStorageKey);
-  if (!imgURL) {
-    console.error(`Image not found in localstorage. Key: ${localStorageKey}`);
-    return;
-  }
-  const img = new Image();
-  img.src = imgURL;
-  img.onload = () => {
-    clearCanvas(REFS.canvasImage);
-    drawImageToFit(REFS.canvasImage, img);
-  };
 }
 
 export function drawBox(canvas, x, y, width, height) {
@@ -57,4 +44,9 @@ export function drawTextBox(canvas, x, y, text, colorText, colorBox) {
 export function clearCanvas(canvas) {
   const context = canvas.getContext('2d');
   context.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+export function calculateCanvasScale(canvas) {
+  const offset = canvas.getBoundingClientRect();
+  return offset.width / CANVAS_WIDTH;
 }

@@ -1,6 +1,5 @@
 import * as canv from './src/canvas.js';
 // Constants
-const CANVAS_WIDTH = 1000;
 const COLOR_TEXT_DEFAULT = 'white';
 const COLOR_BOX_CURRENT = '#f71735';
 
@@ -196,7 +195,6 @@ function imageKeyToFileName(key) {
 }
 
 // Canvas Operations
-// TODO: consider encapsulating all canvas operations in a class
 function addImageToCanvas(localStorageKey) {
   const imgURL = localStorage.getItem(localStorageKey);
   if (!imgURL) {
@@ -230,9 +228,7 @@ function updateCurrentAnnotationPaths(annotations) {
 }
 
 function updateCanvasScale(canvas) {
-  const offset = canvas.getBoundingClientRect();
-  const scale = offset.width / CANVAS_WIDTH;
-  setCanvasScale(scale);
+  setCanvasScale(canv.calculateCanvasScale(canvas));
 }
 
 function checkClickWithinBoxes(x, y) {
