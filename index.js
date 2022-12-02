@@ -422,6 +422,7 @@ function renderGallery() {
 }
 
 // Event bindings
+if (REFS.canvasCurrentBox) {
 REFS.canvasCurrentBox.addEventListener('mousedown', (e) => {
   const { currentItem } = STORE;
   if (!currentItem) return;
@@ -463,35 +464,45 @@ REFS.canvasCurrentBox.addEventListener('mouseout', (e) => {
     handleBoxMoveEnd();
   }
 });
+}
+REFS.imageUploadButton &&
 REFS.imageUploadButton.addEventListener('click', (e) => {
   REFS.imageUploadInput.click();
 });
+REFS.emptyState &&
 REFS.emptyState.addEventListener('click', (e) => {
   REFS.imageUploadInput.click();
 });
+REFS.imageUploadInput &&
 REFS.imageUploadInput.addEventListener('change', (e) => {
   const image = e.target.files[0];
   // TODO check type and file size
   handleImageUpload(image);
 });
+REFS.imageDeleteButton &&
 REFS.imageDeleteButton.addEventListener('click', (e) => {
   handleDeleteImage();
 });
+REFS.imagePrevious &&
 REFS.imagePrevious.addEventListener('click', (e) => {
   handlePrevious();
 });
+REFS.imageNext &&
 REFS.imageNext.addEventListener('click', (e) => {
   handleNext();
 });
+REFS.annotationsDeleteAllButton &&
 REFS.annotationsDeleteAllButton.addEventListener('click', (e) => {
   handleDeleteAllAnnotations();
 });
-const resizeObserver = new ResizeObserver((entries) => {
+const resizeObserver =
+  window.ResizeObserver &&
+  new ResizeObserver((entries) => {
   for (let _ of entries) {
     updateCanvasScale(REFS.canvasCurrentBox);
   }
 });
-resizeObserver.observe(REFS.canvasCurrentBox);
+REFS.canvasCurrentBox && resizeObserver.observe(REFS.canvasCurrentBox);
 
 // init
 // document.ready, then
