@@ -31,6 +31,10 @@ describe('main application', () => {
       );
     });
 
+    cy.findByRole('region', { name: /main canvas/i }).within(() => {
+      cy.findByText(/upload an image to begin/i).should('be.visible');
+    });
+
     cy.findByRole('region', { name: /image controls/i }).within(() => {
       cy.findByRole('button', { name: /delete image/i }).should('be.disabled');
       cy.findByRole('button', { name: /upload new image/i }).should(
@@ -180,6 +184,15 @@ describe('main application', () => {
         .should('have.length', 2)
         .should('have.attr', 'src');
       cy.findAllByRole('img').should('have.attr', 'alt');
+    });
+
+    cy.findByRole('banner', { name: /image details/i }).within(() => {
+      cy.findByRole('heading', { name: /image 2 of 2/i }).should('be.visible');
+      cy.findByRole('heading', { name: /pk22-chair.jpg/i }).should(
+        'be.visible'
+      );
+      cy.findByRole('button', { name: /previous/i }).should('be.enabled');
+      cy.findByRole('button', { name: /next/i }).should('be.disabled');
     });
   });
 });
