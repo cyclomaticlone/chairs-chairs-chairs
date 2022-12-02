@@ -10,19 +10,19 @@
   <body>
     <main>
       <section id="left-col">
-        <h1 data-text="Chairs Chairs Chairs">Chairs Chairs Chairs</h1>
+        <h1>Chairs Chairs Chairs</h1>
 
-        <header id="image-details">
+        <header id="image-details" aria-label="Image Details">
           <div id="image-titles">
             <h2 id="image-title">No image uploaded</h2>
             <h3 id="image-current-filename">Upload an image to begin</h3>
           </div>
-          <nav id="image-nav">
+          <nav id="image-nav" aria-label="Image Navigation">
             <button type="button" id="image-previous" disabled>Previous</button>
             <button type="button" id="image-next" disabled>Next</button>
           </nav>
         </header>
-        <section id="canvas-container">
+        <section id="canvas-container" aria-label="main canvas">
           <div id="canvas-container-inner">
             <span id="canvas-empty-state">Upload an image to begin</span>
             <canvas id="canvas-image" width="1000" height="1000"></canvas>
@@ -31,17 +31,19 @@
           </div>
         </section>
 
-        <aside id="image-controls">
+        <section id="image-controls" aria-label="Image Controls">
           <button type="button" id="image-delete" disabled>Delete Image</button>
           <input type="file" id="image-upload-input" accept="image/*" />
           <button type="button" id="image-upload-button">
             Upload New Image
           </button>
-        </aside>
+        </section>
       </section>
 
-      <section id="annotations">
-        <h2>Annotations<span id="annotations-total-number"></span></h2>
+      <section id="annotations" aria-labelledby="annotations-header">
+        <h2 id="annotations-header">
+          Annotations<span id="annotations-total-number"></span>
+        </h2>
         <h4>Click on labels to change text</h4>
         <ul id="annotations-list"></ul>
         <button type="button" id="annotations-delete-all" disabled>
@@ -49,8 +51,8 @@
         </button>
       </section>
 
-      <section id="gallery">
-        <h2>Gallery</h2>
+      <section id="gallery" aria-labelledby="gallery-header">
+        <h2 id="gallery-header">Gallery</h2>
         <ul id="gallery-list"></ul>
       </section>
     </main>
