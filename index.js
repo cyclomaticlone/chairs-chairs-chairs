@@ -1,159 +1,12 @@
 import * as canv from './src/canvas.js';
+import * as store from './src/store.js';
+import { imageKeyToFileName } from './src/helpers.js';
+
 // Constants
 const COLOR_TEXT_DEFAULT = 'white';
 const COLOR_BOX_CURRENT = '#f71735';
 
-// State
-const STORE = {
-  items: {},
-  currentItem: null,
-  isDrawingBox: false,
-  isMovingBox: false,
-  moveOffset: {
-    x: 0,
-    y: 0,
-  },
-  canvas: {
-    scale: 1,
-  },
-  currentBox: {
-    index: null,
-    label: '',
-    startX: 0,
-    startY: 0,
-    width: 0,
-    height: 0,
-  },
-  currentAnnotationPaths: [],
-  hasSupportContentEditablePlainText: false,
-};
-
-// State Getters/Setters
-function getCurrentItem() {
-  const { items, currentItem } = STORE;
-  return items[currentItem];
-}
-function getCurrentItemImageName() {
-  const { imageURL } = getCurrentItem();
-  return imageKeyToFileName(imageURL);
-}
-function setSupportsContentEditablePlainText(isSupported) {
-  STORE.hasSupportContentEditablePlainText = isSupported;
-}
-function setDrawingStart() {
-  STORE.isDrawingBox = true;
-}
-function setDrawingEnd() {
-  STORE.isDrawingBox = false;
-}
-function setMovingStart() {
-  STORE.isMovingBox = true;
-}
-function setMovingEnd() {
-  STORE.isMovingBox = false;
-}
-function setCanvasScale(scale) {
-  STORE.canvas.scale = scale;
-}
-function setCurrentBoxStart(x, y) {
-  STORE.currentBox.startX = x;
-  STORE.currentBox.startY = y;
-}
-function setCurrentBoxIndex(index) {
-  STORE.currentBox.index = index;
-}
-function setCurrentBoxLabel(label) {
-  STORE.currentBox.label = label;
-}
-function setCurrentBoxWidthHeight(width, height) {
-  STORE.currentBox.width = width;
-  STORE.currentBox.height = height;
-}
-function setCurrentAnnotationPaths(paths) {
-  STORE.currentAnnotationPaths = paths;
-}
-function setMoveOffset(x, y) {
-  STORE.moveOffset = { x, y };
-}
-function setCurrentItem(itemKey) {
-  // Example of error handling, not implemented project-wide
-  if (itemKey !== null && !STORE.items[itemKey]) {
-    console.error(`Attempted to set current item to invalid key: ${itemKey}`);
-    return;
-  }
-  STORE.currentItem = itemKey;
-}
-function updateBoxCoordinates(boxIndex, x, y, width, height) {
-  const { annotations } = getCurrentItem();
-  const box = annotations[boxIndex];
-  const updatedBox = { ...box, x, y, width, height };
-  annotations[boxIndex] = updatedBox;
-}
-function updateBoxLabel(boxIndex, label) {
-  const { annotations } = getCurrentItem();
-  const box = annotations[boxIndex];
-  const updatedBox = { ...box, label };
-  annotations[boxIndex] = updatedBox;
-}
-function removeBoxFromAnnotations(boxIndex) {
-  const { annotations } = getCurrentItem();
-  annotations.splice(boxIndex, 1);
-}
-function removeAllBoxes() {
-  const { currentItem, items } = STORE;
-  items[currentItem].annotations = [];
-}
-function addBoxToAnnotations(x, y, width, height) {
-  const { annotations } = getCurrentItem();
-  annotations.push({
-    x,
-    y,
-    width,
-    height,
-    label: `Label ${annotations.length + 1}`,
-    isRender: true,
-  });
-}
-function setBoxRender(boxIndex, isRender) {
-  const { annotations } = getCurrentItem();
-  annotations[boxIndex].isRender = isRender;
-}
-function addImageToStore(localStorageKey) {
-  const itemKeysLength = Object.keys(STORE.items).length;
-  const newItemKey = itemKeysLength === 0 ? 1 : itemKeysLength + 1;
-  STORE.items[newItemKey] = {
-    imageURL: localStorageKey,
-    annotations: [],
-  };
-}
-function removeImageFromStore(itemKeyToDelete) {
-  const { imageURL } = getCurrentItem();
-  const newItemKeys = Object.keys(STORE.items).filter(
-    (key) => Number(key) !== itemKeyToDelete
-  );
-  const newItems = {};
-  newItemKeys.forEach((itemKey, index) => {
-    newItems[index + 1] = STORE.items[itemKey];
-  });
-  STORE.items = newItems;
-  // also remove image data from local storage
-  localStorage.removeItem(`chairs-chairs-chairs-${imageURL}`);
-}
-function saveStoreToLocalStorage() {
-  const { items, currentItem } = STORE;
-  localStorage.setItem(
-    'chairs-chairs-chairs-store',
-    JSON.stringify({ items, currentItem })
-  );
-}
-function readStoreFromLocalStorage() {
-  const stored = localStorage.getItem('chairs-chairs-chairs-store');
-  if (stored) {
-    const { items, currentItem } = JSON.parse(stored);
-    STORE.items = items;
-    STORE.currentItem = currentItem;
-  }
-}
+const STORE = store.STORE;
 
 // DOM references
 const REFS = {
@@ -190,10 +43,6 @@ function enableButton(button) {
   button.classList.remove('--disabled');
 }
 
-function imageKeyToFileName(key) {
-  return key.replace('chairs-chairs-chairs-', '');
-}
-
 // Canvas Operations
 function addImageToCanvas(localStorageKey) {
   const imgURL = localStorage.getItem(localStorageKey);
@@ -224,11 +73,11 @@ function updateCurrentAnnotationPaths(annotations) {
     path.rect(x, y, width, height);
     return path;
   });
-  setCurrentAnnotationPaths(paths);
+  store.setCurrentAnnotationPaths(paths);
 }
 
 function updateCanvasScale(canvas) {
-  setCanvasScale(canv.calculateCanvasScale(canvas));
+  store.setCanvasScale(canv.calculateCanvasScale(canvas));
 }
 
 function checkClickWithinBoxes(x, y) {
@@ -242,39 +91,40 @@ function checkClickWithinBoxes(x, y) {
   return pathIndex !== -1 ? pathIndex : false;
 }
 
-// Event Handlers
-
+// Check browser support
 function checkSupportsContentEditablePlainText() {
   try {
     const testEl = document.createElement('span');
     testEl.contentEditable = 'plaintext-only';
-    setSupportsContentEditablePlainText(true);
+    store.setSupportsContentEditablePlainText(true);
   } catch {
-    setSupportsContentEditablePlainText(false);
+    store.setSupportsContentEditablePlainText(false);
   }
 }
 
+// Event Handler
+
 function handleBoxDrawStart(x, y) {
-  setDrawingStart();
-  setCurrentBoxStart(withScale(x), withScale(y));
+  store.setDrawingStart();
+  store.setCurrentBoxStart(withScale(x), withScale(y));
 }
 
 function handleBoxDrawEnd() {
-  setDrawingEnd();
+  store.setDrawingEnd();
   const { startX, startY, width, height } = STORE.currentBox;
-  const { annotations } = getCurrentItem();
+  const { annotations } = store.getCurrentItem();
   // manipulate values such that top left of box is x and y, to facilitate label placement
   const x = Math.min(startX, startX + width);
   const y = Math.min(startY, startY + height);
   // push into state
-  addBoxToAnnotations(x, y, Math.abs(width), Math.abs(height));
+  store.addBoxToAnnotations(x, y, Math.abs(width), Math.abs(height));
   // draw on annotations layer
   renderAllAnnotations(REFS.canvasAnnotation, annotations);
   updateCurrentAnnotationPaths(annotations);
   canv.clearCanvas(REFS.canvasCurrentBox);
   //re-render list
   renderAnnotationsList(annotations);
-  saveStoreToLocalStorage();
+  store.saveStoreToLocalStorage();
 }
 
 function handleBoxDrawing(x, y) {
@@ -284,7 +134,7 @@ function handleBoxDrawing(x, y) {
   const currentYCanvas = withScale(y);
   const width = currentXCanvas - startX;
   const height = currentYCanvas - startY;
-  setCurrentBoxWidthHeight(width, height);
+  store.setCurrentBoxWidthHeight(width, height);
 
   canv.clearCanvas(REFS.canvasCurrentBox);
   canv.drawBox(REFS.canvasCurrentBox, startX, startY, width, height);
@@ -298,7 +148,7 @@ function handleBoxMoving(currentX, currentY) {
   // translate to canvas scale
   const xWithOffset = withScale(currentX) - x;
   const yWithOffset = withScale(currentY) - y;
-  setCurrentBoxStart(xWithOffset, yWithOffset);
+  store.setCurrentBoxStart(xWithOffset, yWithOffset);
   canv.clearCanvas(REFS.canvasCurrentBox);
   canv.drawBox(REFS.canvasCurrentBox, xWithOffset, yWithOffset, width, height);
   canv.drawTextBox(
@@ -312,16 +162,16 @@ function handleBoxMoving(currentX, currentY) {
 }
 
 function handleBoxMoveStart(boxIndex, x, y) {
-  const { annotations } = getCurrentItem();
+  const { annotations } = store.getCurrentItem();
   const boxClickedInside = annotations[boxIndex];
   const { x: boxX, y: boxY, width, height, label } = boxClickedInside;
-  setMovingStart();
-  setCurrentBoxIndex(boxIndex);
-  setCurrentBoxWidthHeight(width, height);
-  setCurrentBoxStart(boxX, boxY);
-  setCurrentBoxLabel(label);
-  setMoveOffset(withScale(x) - boxX, withScale(y) - boxY);
-  setBoxRender(boxIndex, false);
+  store.setMovingStart();
+  store.setCurrentBoxIndex(boxIndex);
+  store.setCurrentBoxWidthHeight(width, height);
+  store.setCurrentBoxStart(boxX, boxY);
+  store.setCurrentBoxLabel(label);
+  store.setMoveOffset(withScale(x) - boxX, withScale(y) - boxY);
+  store.setBoxRender(boxIndex, false);
   // redraw boxes minus the current one
   canv.clearCanvas(REFS.canvasAnnotation);
   renderAllAnnotations(REFS.canvasAnnotation, annotations);
@@ -341,40 +191,40 @@ function handleBoxMoveStart(boxIndex, x, y) {
 
 function handleBoxMoveEnd() {
   const { currentBox } = STORE;
-  const { annotations } = getCurrentItem();
-  setMovingEnd();
+  const { annotations } = store.getCurrentItem();
+  store.setMovingEnd();
   canv.clearCanvas(REFS.canvasAnnotation);
   // push into state
   const { startX, startY, width, height, index } = currentBox;
-  updateBoxCoordinates(index, startX, startY, width, height);
-  setBoxRender(index, true);
+  store.updateBoxCoordinates(index, startX, startY, width, height);
+  store.setBoxRender(index, true);
   // draw on annotations layer
   renderAllAnnotations(REFS.canvasAnnotation, annotations);
   updateCurrentAnnotationPaths(annotations);
   canv.clearCanvas(REFS.canvasCurrentBox);
   renderAnnotationsList(annotations);
-  saveStoreToLocalStorage();
+  store.saveStoreToLocalStorage();
   REFS.canvasCurrentBox.style.cursor = 'crosshair';
 }
 
 function handleDeleteAnnotation(boxIndex) {
-  const { annotations } = getCurrentItem();
+  const { annotations } = store.getCurrentItem();
   const { label } = annotations[boxIndex];
   if (confirm(`Delete annotation ${label}?`)) {
-    removeBoxFromAnnotations(boxIndex);
+    store.removeBoxFromAnnotations(boxIndex);
     renderAnnotationsList(annotations);
     canv.clearCanvas(REFS.canvasAnnotation);
     renderAllAnnotations(REFS.canvasAnnotation, annotations);
-    saveStoreToLocalStorage();
+    store.saveStoreToLocalStorage();
   }
 }
 
 function handleLabelChange(boxIndex, label) {
-  const { annotations } = getCurrentItem();
+  const { annotations } = store.getCurrentItem();
   updateBoxLabel(boxIndex, label);
   canv.clearCanvas(REFS.canvasAnnotation);
   renderAllAnnotations(REFS.canvasAnnotation, annotations);
-  saveStoreToLocalStorage();
+  store.saveStoreToLocalStorage();
 }
 
 function renderAnnotationsList(annotations) {
@@ -416,13 +266,12 @@ function handleImageUpload(image) {
   const { items } = STORE;
   const reader = new FileReader();
   reader.readAsDataURL(image);
-  const key = `chairs-chairs-chairs-${image.name}`;
   reader.addEventListener('load', () => {
-    localStorage.setItem(key, reader.result);
-    addImageToStore(key);
-    setCurrentItem(Object.keys(items).length);
+    store.saveImageToLocalStorage(image.name, reader.result);
+    store.addImageToMainStore(image.name);
+    store.setCurrentItem(Object.keys(items).length);
     handleImageChange();
-    saveStoreToLocalStorage();
+    store.saveStoreToLocalStorage();
     renderGallery();
   });
   enableButton(REFS.imageDeleteButton);
@@ -433,11 +282,11 @@ function renderImageDetails() {
   const { currentItem: currentItemNumber, items } = STORE;
   const noOfItems = Object.keys(items).length;
   REFS.imageTitle.textContent = `Image ${currentItemNumber} of ${noOfItems}`;
-  REFS.imageCurrentFilename.textContent = getCurrentItemImageName();
+  REFS.imageCurrentFilename.textContent = store.getCurrentItemImageName();
 }
 
 function handleImageChange() {
-  const { imageURL, annotations } = getCurrentItem();
+  const { imageURL, annotations } = store.getCurrentItem();
   addImageToCanvas(imageURL);
   renderImageDetails();
   canv.clearCanvas(REFS.canvasAnnotation);
@@ -450,13 +299,13 @@ function handleImageChange() {
 function handleCurrentItemChange() {
   checkAndDisableButtons();
   handleImageChange();
-  saveStoreToLocalStorage();
+  store.saveStoreToLocalStorage();
 }
 
 function handlePrevious() {
   const { currentItem } = STORE;
   if (currentItem > 1) {
-    setCurrentItem(currentItem - 1);
+    store.setCurrentItem(currentItem - 1);
   }
   handleCurrentItemChange();
 }
@@ -465,7 +314,7 @@ function handleNext() {
   const { currentItem, items } = STORE;
   const noOfItems = Object.keys(items).length;
   if (currentItem < noOfItems) {
-    setCurrentItem(currentItem + 1);
+    store.setCurrentItem(currentItem + 1);
   }
   handleCurrentItemChange();
 }
@@ -489,13 +338,13 @@ function checkAndDisableButtons() {
 
 function handleDeleteAllAnnotations() {
   if (confirm(`Delete all annotations? This cannot be undone.`)) {
-    removeAllBoxes();
+    store.removeAllAnnotations();
     canv.clearCanvas(REFS.canvasAnnotation);
-    const { annotations } = getCurrentItem();
+    const { annotations } = store.getCurrentItem();
     renderAnnotationsList(annotations);
     updateCurrentAnnotationPaths(annotations);
     disableButton(REFS.annotationsDeleteAllButton);
-    saveStoreToLocalStorage();
+    store.saveStoreToLocalStorage();
   }
 }
 
@@ -504,7 +353,7 @@ function handleEmptyState() {
   canv.clearCanvas(REFS.canvasAnnotation);
   renderAnnotationsList([]);
   updateCurrentAnnotationPaths([]);
-  saveStoreToLocalStorage();
+  store.saveStoreToLocalStorage();
   REFS.imageCurrentFilename.textContent = 'Upload an image to begin';
   REFS.imageTitle.textContent = 'No image uploaded';
   disableButton(REFS.annotationsDeleteAllButton);
@@ -514,13 +363,13 @@ function handleEmptyState() {
 
 function handleDeleteImage() {
   const { currentItem } = STORE;
-  const imageName = getCurrentItemImageName();
-  if (confirm(`Delete image "${imageName}"? This cannot be undone.`)) {
-    removeImageFromStore(currentItem);
+  const imageKey = store.getCurrentItemImageName();
+  if (confirm(`Delete image "${imageKey}"? This cannot be undone.`)) {
+    store.removeImageFromStore(currentItem);
     const { items } = STORE;
     const itemCount = Object.keys(items).length;
     if (itemCount === 0) {
-      setCurrentItem(null);
+      store.setCurrentItem(null);
       handleEmptyState();
       return;
     }
@@ -534,7 +383,7 @@ function handleDeleteImage() {
 }
 
 function handleMouseMoveCursorChange(e) {
-  const { annotations } = getCurrentItem();
+  const { annotations } = store.getCurrentItem();
   if (annotations.length === 0) return;
   const boxIndex = checkClickWithinBoxes(
     withScale(e.offsetX),
@@ -561,10 +410,12 @@ function renderGallery() {
     const img = document.createElement('img');
     const imgData = localStorage.getItem(imageURL);
     img.src = imgData;
+    const fileName = imageKeyToFileName(imageURL);
+    img.alt = fileName;
     const labelEl = document.createElement('span');
-    labelEl.textContent = `(${index + 1}) ${imageKeyToFileName(imageURL)}`;
+    labelEl.textContent = `(${index + 1}) ${fileName}`;
     li.addEventListener('click', () => {
-      setCurrentItem(index + 1);
+      store.setCurrentItem(index + 1);
       handleCurrentItemChange();
     });
     li.appendChild(img);
@@ -648,12 +499,12 @@ resizeObserver.observe(REFS.canvasCurrentBox);
 // init
 // document.ready, then
 window.onload = function () {
-  readStoreFromLocalStorage();
+  store.readStoreFromLocalStorage();
   checkSupportsContentEditablePlainText();
   updateCanvasScale(REFS.canvasCurrentBox);
   const { currentItem } = STORE;
   if (currentItem) {
-    const { imageURL, annotations } = getCurrentItem();
+    const { imageURL, annotations } = store.getCurrentItem();
     addImageToCanvas(imageURL);
     REFS.emptyState.style.display = 'none';
     renderAllAnnotations(REFS.canvasAnnotation, annotations);
