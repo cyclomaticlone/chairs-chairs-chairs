@@ -215,7 +215,7 @@ function handleDeleteAnnotation(boxIndex) {
 
 function handleLabelChange(boxIndex, label) {
   const { annotations } = store.getCurrentItem();
-  updateBoxLabel(boxIndex, label);
+  store.updateBoxLabel(boxIndex, label);
   canv.clearCanvas(REFS.canvasAnnotation);
   renderAllAnnotations(REFS.canvasAnnotation, annotations);
   store.saveStoreToLocalStorage();
