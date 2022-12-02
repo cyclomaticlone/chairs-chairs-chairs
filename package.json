@@ -8,8 +8,9 @@
     "dev": "browser-sync start --server --files 'index.js' 'index.html' 'style.css' 'src' --ignore 'src/*.test.js'",
     "serve": "serve",
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:unit:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch --collectCoverage",
-    "test:browser": "cypress open --e2e --browser chrome"
+    "test:unit:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:browser:watch": "serve & cypress open --e2e --browser chrome",
+    "test:browser": "serve & cypress run --e2e --browser chrome"
   },
   "jest": {
     "testEnvironment": "jsdom",
