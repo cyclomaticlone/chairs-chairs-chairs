@@ -240,7 +240,10 @@ function renderAnnotationsList(annotations) {
   annotations.forEach(({ label }, index) => {
     const li = document.createElement('li');
     li.className = 'annotationsListItem';
+    const id = `label-${index}`;
+    li.setAttribute('aria-labelledby', id);
     const labelEl = document.createElement('span');
+    labelEl.id = id;
     labelEl.textContent = label;
     labelEl.contentEditable = hasSupportContentEditablePlainText
       ? 'plaintext-only'
