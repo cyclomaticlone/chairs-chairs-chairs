@@ -1,6 +1,10 @@
 import * as canv from './src/canvas.js';
 import * as store from './src/store.js';
-import { imageKeyToFileName } from './src/helpers.js';
+import {
+  imageKeyToFileName,
+  disableButton,
+  enableButton,
+} from './src/helpers.js';
 
 // Constants
 const COLOR_TEXT_DEFAULT = 'white';
@@ -31,16 +35,6 @@ const REFS = {
 function withScale(value) {
   const { scale } = STORE.canvas;
   return value / scale;
-}
-
-function disableButton(button) {
-  button.setAttribute('disabled', '');
-  button.classList.add('--disabled');
-}
-
-function enableButton(button) {
-  button.removeAttribute('disabled');
-  button.classList.remove('--disabled');
 }
 
 // Canvas Operations
