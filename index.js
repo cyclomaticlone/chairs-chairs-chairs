@@ -365,6 +365,7 @@ function handleDeleteImage() {
     store.removeImageFromStore(currentItem);
     const { items } = STORE;
     const itemCount = Object.keys(items).length;
+    renderGallery();
     if (itemCount === 0) {
       store.setCurrentItem(null);
       handleEmptyState();
@@ -375,7 +376,6 @@ function handleDeleteImage() {
       return;
     }
     handleCurrentItemChange();
-    renderGallery();
   }
 }
 
